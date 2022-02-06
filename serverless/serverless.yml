@@ -1,11 +1,11 @@
-service: serverless/
-frameworkVersion: "=2.72.0"
+service: serverless
+frameworkVersion: "=2.72.2"
 
 provider:
   name: aws
   runtime: nodejs14.x
-  region: eu-west-1
-  stage: dev
+  region: eu-west-2
+  stage: "develop"
 
   # Environment variables common to all Lambda functions in the stack. Lambda-
   # specific environment variables are merged with these and take precedence
@@ -32,10 +32,6 @@ provider:
   # another. AWS does not recommend enabling full request/response logging in
   # production environments due to the potential for recording sensitive data.
   # This may be something to revisit and make more configurable via an option.
-  logs:
-    restApi: true
-    websocket: true
-
   # Opt-in to the new naming convention for API Gateway resources. This will
   # become the default in the next major version of the Serverless Framework and
   # currently logs a deprecation warning if not opted-in.
@@ -71,7 +67,12 @@ package:
 # and parsing works (in an ideal world we could include these in a list as we do
 # for resources).
 functions:
-  hello: ${file(src/functions/hello/index.yml):hello}
+  hello:
+    handler: src/functions/hello/index.hello
+    events:
+      - http:
+          path: hello
+          method: get
 
 # Custom AWS resource definitions. This includes anything that the Serverless
 # framework doesn't handle for us, such as database setup, and overrides of
@@ -80,8 +81,6 @@ functions:
 # An example file has been included here to demonstrate the way we like to
 # separate custom CloudFormation resources into files by type. You can safely
 # delete the example file and this reference to it.
-resources:
-  - ${file(src/resources/sns.yml)}
 
 # Custom configuration. This is where Serverless Framework plugins get their
 # configuration from.
